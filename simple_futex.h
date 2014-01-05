@@ -21,10 +21,10 @@ struct futex_context {
 
 void *futex_test_init(int mmap_fd);
 void futex_test_destroy(void *context);
-    
 
 simplefu *get_top_sema(void *context);
 simplefu *get_bottom_sema(void *context);
+    
 
 #ifdef __cplusplus
 }

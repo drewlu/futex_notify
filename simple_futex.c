@@ -7,6 +7,8 @@
 #include <assert.h>
 
 extern int dowait;
+extern struct test_ops futex_test_ops;
+
 void *futex_test_init(int mmap_fd)
 {
     struct futex_context *context;
@@ -21,6 +23,8 @@ void *futex_test_init(int mmap_fd)
     context->bottom_sema.avail = 0;
     context->bottom_sema.waiters = 0;
 
+    futex_test_ops.context = context;
+
     return context;
 }
 
@@ -31,16 +35,16 @@ void futex_test_destroy(void *context)
 
 simplefu *get_top_sema(void *context)
 {
-    struct futex_context *fctxt = (struct futex_context *)context;
-
-    return &fctxt->top_sema;
+    struct test_ops *tops = (struct test_ops *)context;
+    struct futex_context *test_cxt = (struct futex_context *)(tops->context);
+    return &test_cxt->top_sema;
 }
 
 simplefu *get_bottom_sema(void *context)
 {
-    struct futex_context *fctxt = (struct futex_context *)context;
-
-    return &fctxt->bottom_sema;
+    struct test_ops *tops = (struct test_ops *)context;
+    struct futex_context *test_cxt = (struct futex_context *)(tops->context);
+    return &test_cxt->bottom_sema;
 }
 
 
@@ -86,7 +90,7 @@ const struct lock_ops futex_ops = {
     .unlock = futex_unlock
 };
 
-const struct test_ops futex_test_ops = {
+struct test_ops futex_test_ops = {
     .context = NULL,
     .init = futex_test_init,
     .destroy = futex_test_destroy
