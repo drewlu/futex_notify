@@ -18,10 +18,10 @@ void *futex_test_init(int mmap_fd)
     
     assert(context != MAP_FAILED);
 
-    context->top_sema.avail = 0;
-    context->top_sema.waiters = 0;
-    context->bottom_sema.avail = 0;
-    context->bottom_sema.waiters = 0;
+    context->top_lock.avail = 0;
+    context->top_lock.waiters = 0;
+    context->bottom_lock.avail = 0;
+    context->bottom_lock.waiters = 0;
 
     futex_test_ops.context = context;
 
@@ -33,18 +33,18 @@ void futex_test_destroy(void *context)
     munmap(context, 2*sizeof(simplefu));
 }
 
-simplefu *get_top_sema(void *context)
+void *futex_get_top_lock(void *context)
 {
     struct test_ops *tops = (struct test_ops *)context;
     struct futex_context *test_cxt = (struct futex_context *)(tops->context);
-    return &test_cxt->top_sema;
+    return &test_cxt->top_lock;
 }
 
-simplefu *get_bottom_sema(void *context)
+void *futex_get_bottom_lock(void *context)
 {
     struct test_ops *tops = (struct test_ops *)context;
     struct futex_context *test_cxt = (struct futex_context *)(tops->context);
-    return &test_cxt->bottom_sema;
+    return &test_cxt->bottom_lock;
 }
 
 
@@ -93,6 +93,8 @@ const struct lock_ops futex_ops = {
 struct test_ops futex_test_ops = {
     .context = NULL,
     .init = futex_test_init,
-    .destroy = futex_test_destroy
+    .destroy = futex_test_destroy,
+    .get_top_lock = futex_get_top_lock,
+    .get_bottom_lock = futex_get_bottom_lock
 };
 
